@@ -1,15 +1,23 @@
 import { useState, useEffect } from "react";
 
 function ContactForm({ existingContact, updateCallback }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [form, setForm] = useState({ name: "", email: "" });
 
   useEffect(() => {
     if (existingContact) {
-      setName(existingContact.name || "");
-      setEmail(existingContact.email || "");
+      setForm({
+        name: existingContact.name || "",
+        email: existingContact.email || "",
+      });
+    } else {
+      setForm({ name: "", email: "" });
     }
   }, [existingContact]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,23 +31,38 @@ function ContactForm({ existingContact, updateCallback }) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, email }),
+      body: JSON.stringify(form),
     });
 
     updateCallback();
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="contact-form" onSubmit={handleSubmit}>
       <div>
-        <label>Name:</label><br />
-        <input value={name} onChange={(e) => setName(e.target.value)} required />
+        <label htmlFor="name">Name:</label><br />
+        <input
+          id="name"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          required
+        />
       </div>
       <div>
-        <label>Email:</label><br />
-        <input value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <label htmlFor="email">Email:</label><br />
+        <input
+          id="email"
+          name="email"
+          type="email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
       </div>
-      <button type="submit">{existingContact?.id ? "Update" : "Create"}</button>
+      <button type="submit">
+        {existingContact?.id ? "Update" : "Create"}
+      </button>
     </form>
   );
 }
